@@ -23,6 +23,7 @@ export interface BaseEntry {
   date: string;
   specialist: string;
   diagnosisCodes?: Array<Diagnosis["code"]>;
+  type: EntryTypes;
 }
 
 export interface HealthCheckEntry extends BaseEntry {
@@ -47,11 +48,19 @@ export interface OccupationalHealthcareEntry extends BaseEntry {
   };
 }
 
+export type EntryTypes = "Hospital" | "OccupationalHealthcare" | "HealthCheck";
+
+// Define special omit for unions
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown
+  ? Omit<T, K>
+  : never;
+
 export type Entry =
-  | HospitalEntry
   | OccupationalHealthcareEntry
+  | HospitalEntry
   | HealthCheckEntry;
 
+export type NewEntry = UnionOmit<Entry, "id">;
 export interface Patient {
   id: string;
   name: string;

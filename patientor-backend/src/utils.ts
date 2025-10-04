@@ -9,25 +9,23 @@ export const baseEntrySchema = {
   diagnosisCodes: z.array(z.string()).optional(),
 };
 
-export const healthCheckSchema = z
-  .object({
-    ...baseEntrySchema,
-    type: z.literal("HealthCheck"),
-    healthCheckRating: z.enum(HealthCheckRating),
-  })
-  .extend(baseEntrySchema);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { id, ...baseNewEntrySchema } = baseEntrySchema;
 
-export const hospitalSchema = z.object({
-  ...baseEntrySchema,
+export const healthCheckSchema = {
+  type: z.literal("HealthCheck"),
+  healthCheckRating: z.enum(HealthCheckRating),
+};
+
+export const hospitalSchema = {
   type: z.literal("Hospital"),
   discharge: z.object({
     date: z.string(),
     criteria: z.string(),
   }),
-});
+};
 
-export const occupationalHealthcareSchema = z.object({
-  ...baseEntrySchema,
+export const occupationalHealthcareSchema = {
   type: z.literal("OccupationalHealthcare"),
   employerName: z.string(),
   sickLeave: z
@@ -36,12 +34,12 @@ export const occupationalHealthcareSchema = z.object({
       endDate: z.string(),
     })
     .optional(),
-});
+};
 
 export const entrySchema = z.union([
-  healthCheckSchema,
-  hospitalSchema,
-  occupationalHealthcareSchema,
+  z.object({ ...baseNewEntrySchema, ...healthCheckSchema }),
+  z.object({ ...baseNewEntrySchema, ...hospitalSchema }),
+  z.object({ ...baseNewEntrySchema, ...occupationalHealthcareSchema }),
 ]);
 
 export const newEntrySchema = z.object({
@@ -50,5 +48,13 @@ export const newEntrySchema = z.object({
   ssn: z.string(),
   gender: z.enum(Object.values(Gender)),
   occupation: z.string(),
-  entries: z.array(entrySchema).optional(),
+  entries: z
+    .array(
+      z.union([
+        z.object({ ...baseEntrySchema, ...healthCheckSchema }),
+        z.object({ ...baseEntrySchema, ...hospitalSchema }),
+        z.object({ ...baseEntrySchema, ...occupationalHealthcareSchema }),
+      ])
+    )
+    .optional(),
 });

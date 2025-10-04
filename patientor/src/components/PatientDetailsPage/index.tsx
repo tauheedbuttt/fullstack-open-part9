@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import patientService from "../../services/patients";
-import { Diagnosis, Gender, Patient } from "../../types";
+import { Diagnosis, Entry, Gender, Patient } from "../../types";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import TransgenderIcon from "@mui/icons-material/Transgender";
 import groupBy from "lodash/groupBy";
 import EntryDetails from "./EntryDetails";
+import EntryForm from "./EntryForm";
 
 interface PatientDetailsPageProps {
   diagnoses: Diagnosis[];
@@ -33,6 +34,15 @@ const PatientDetailsPage = ({ diagnoses }: PatientDetailsPageProps) => {
   };
   const icon = patient ? genderIcons[patient.gender] : null;
   const groupedDiagnoses = groupBy(diagnoses, "code");
+  const codes = Object.keys(groupedDiagnoses) as Array<Diagnosis["code"]>;
+
+  const addEntry = (entry: Entry) => {
+    if (!patient) return;
+    setPatient({
+      ...patient,
+      entries: [...patient.entries, entry],
+    });
+  };
 
   return (
     <div>
@@ -42,10 +52,11 @@ const PatientDetailsPage = ({ diagnoses }: PatientDetailsPageProps) => {
       </h2>
       <p>ssn: {patient?.ssn}</p>
       <p>occupation: {patient?.occupation}</p>
+      <EntryForm id={id ?? ""} addEntry={addEntry} codes={codes} />
       <h3>entries</h3>
       {patient?.entries.map((entry) => (
         <div
-          key={entry.date + entry.description}
+          key={entry.id}
           style={{
             marginBottom: "1em",
             padding: 10,
