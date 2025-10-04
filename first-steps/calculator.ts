@@ -1,6 +1,6 @@
-type Operation = "multiply" | "add" | "divide";
+export type Operation = "multiply" | "add" | "divide";
 
-const calculator = (a: number, b: number, op: Operation): number => {
+export const calculator = (a: number, b: number, op: Operation): number => {
   switch (op) {
     case "multiply":
       return a * b;
@@ -14,17 +14,20 @@ const calculator = (a: number, b: number, op: Operation): number => {
   }
 };
 
-try {
-  const a = Number(process.argv[2]);
-  const b = Number(process.argv[3]);
-  const op = process.argv[4] as Operation;
-  if (isNaN(a) || isNaN(b))
-    throw new Error("Provided values were not numbers!");
-  console.log(calculator(a, b, op));
-} catch (error: unknown) {
-  let errorMessage = "Something went wrong: ";
-  if (error instanceof Error) {
-    errorMessage += error.message;
+const main = () => {
+  try {
+    const a = Number(process.argv[2]);
+    const b = Number(process.argv[3]);
+    const op = process.argv[4] as Operation;
+    if (isNaN(a) || isNaN(b))
+      throw new Error("Provided values were not numbers!");
+    console.log(calculator(a, b, op));
+  } catch (error: unknown) {
+    let errorMessage = "Something went wrong: ";
+    if (error instanceof Error) {
+      errorMessage += error.message;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
-}
+};
+if (require.main === module) main();

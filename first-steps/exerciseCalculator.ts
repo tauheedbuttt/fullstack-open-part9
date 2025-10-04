@@ -1,9 +1,19 @@
 import { isNotNumber } from "./utils";
 
-const calculateExercise = (
+interface ExerciseResult {
+  periodLength: number;
+  trainingDays: number;
+  success: boolean;
+  rating: number;
+  ratingDescription: string;
+  target: number;
+  average: number;
+}
+
+export const calculateExercise = (
   dailyExerciseHours: number[],
   targetAmount: number
-) => {
+): ExerciseResult => {
   if (isNotNumber(targetAmount) || targetAmount <= 0)
     throw new Error("Invalid target amount");
   if (dailyExerciseHours.some((h) => isNotNumber(h) || h < 0))
@@ -33,15 +43,19 @@ const calculateExercise = (
   };
 };
 
-try {
-  const target = Number(process.argv[2]);
-  const dailyExerciseHours = process.argv.slice(3).map((h) => Number(h));
+const main = () => {
+  try {
+    const target = Number(process.argv[2]);
+    const dailyExerciseHours = process.argv.slice(3).map((h) => Number(h));
 
-  console.log(calculateExercise(dailyExerciseHours, target));
-} catch (error: unknown) {
-  let errorMessage = "Something bad happened.";
-  if (error instanceof Error) {
-    errorMessage += " Error: " + error.message;
+    console.log(calculateExercise(dailyExerciseHours, target));
+  } catch (error: unknown) {
+    let errorMessage = "Something bad happened.";
+    if (error instanceof Error) {
+      errorMessage += " Error: " + error.message;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
-}
+};
+
+if (require.main === module) main();
