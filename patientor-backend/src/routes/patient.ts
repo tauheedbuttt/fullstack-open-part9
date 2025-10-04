@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
-import { NewPatientEntry, PatientWithoutSsn } from "../types";
+import { Entry, NewPatientEntry, PatientWithoutSsn } from "../types";
 import patientService from "../services/patientService";
-import { newEntrySchema } from "../utils";
+import { entrySchema, newEntrySchema } from "../utils";
 import z from "zod";
 
 const router = express.Router();
@@ -60,6 +60,33 @@ router.post(
         errorMessage += " Error: " + error.message;
       }
       res.status(400).send(errorMessage);
+    }
+  }
+);
+
+const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    entrySchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+router.post(
+  "/:id/entries",
+  newEntryParser,
+  (req: Request<{ id: string }, unknown, Entry>, res: Response) => {
+    try {
+      const { id } = req.params;
+      const entry = patientService.addEntry(req.body, id);
+      return res.json(entry);
+    } catch (error: unknown) {
+      let errorMessage = "Something went wrong.";
+      if (error instanceof Error) {
+        errorMessage += " Error: " + error.message;
+      }
+      return res.status(400).send(errorMessage);
     }
   }
 );

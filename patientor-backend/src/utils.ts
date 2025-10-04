@@ -9,11 +9,13 @@ export const baseEntrySchema = {
   diagnosisCodes: z.array(z.string()).optional(),
 };
 
-export const healthCheckSchema = z.object({
-  ...baseEntrySchema,
-  type: z.literal("HealthCheck"),
-  healthCheckRating: z.enum(HealthCheckRating),
-});
+export const healthCheckSchema = z
+  .object({
+    ...baseEntrySchema,
+    type: z.literal("HealthCheck"),
+    healthCheckRating: z.enum(HealthCheckRating),
+  })
+  .extend(baseEntrySchema);
 
 export const hospitalSchema = z.object({
   ...baseEntrySchema,
@@ -36,15 +38,17 @@ export const occupationalHealthcareSchema = z.object({
     .optional(),
 });
 
+export const entrySchema = z.union([
+  healthCheckSchema,
+  hospitalSchema,
+  occupationalHealthcareSchema,
+]);
+
 export const newEntrySchema = z.object({
   name: z.string(),
   dateOfBirth: z.string(),
   ssn: z.string(),
   gender: z.enum(Object.values(Gender)),
   occupation: z.string(),
-  entries: z
-    .array(
-      z.union([healthCheckSchema, hospitalSchema, occupationalHealthcareSchema])
-    )
-    .optional(),
+  entries: z.array(entrySchema).optional(),
 });
