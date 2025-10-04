@@ -1,6 +1,6 @@
 import { isNotNumber } from "./utils";
 
-function calculateBmi(heightCm: number, weightKg: number): string {
+export function calculateBmi(heightCm: number, weightKg: number): string {
   if (isNotNumber(heightCm) || isNotNumber(weightKg))
     throw new Error("Invalid input");
 
@@ -22,15 +22,19 @@ function calculateBmi(heightCm: number, weightKg: number): string {
   }
 }
 
-try {
-  const num1 = Number(process.argv[2]);
-  const num2 = Number(process.argv[3]);
+const main = () => {
+  try {
+    const num1 = Number(process.argv[2]);
+    const num2 = Number(process.argv[3]);
 
-  console.log(calculateBmi(num1, num2));
-} catch (error: unknown) {
-  let errorMessage = "Something bad happened.";
-  if (error instanceof Error) {
-    errorMessage += " Error: " + error.message;
+    console.log(calculateBmi(num1, num2));
+  } catch (error: unknown) {
+    let errorMessage = "Something bad happened.";
+    if (error instanceof Error) {
+      errorMessage += " Error: " + error.message;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
-}
+};
+
+if (require.main === module) main();
