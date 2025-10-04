@@ -5,18 +5,21 @@ import {
   HospitalEntry,
   NewEntry,
   OccupationalHealthcareEntry,
+  ZodIssue,
 } from "../../../types";
 import patientService from "../../../services/patients";
 import HealthCheckForm from "./HealthCheckForm";
 import HospitalForm from "./HospitalForm";
 import OccupationalHealthcareForm from "./OccupationalHealthcareForm";
 import {
+  Alert,
   Autocomplete,
   Input,
   MenuItem,
   Select,
   TextField,
 } from "@mui/material";
+import { AxiosError } from "axios";
 
 interface EntryFormProps {
   id: string;
@@ -25,6 +28,7 @@ interface EntryFormProps {
 }
 
 const EntryForm = ({ id, addEntry, codes }: EntryFormProps) => {
+  const [error, setError] = useState<string | undefined>();
   const [entry, setEntry] = useState<NewEntry>({
     description: "",
     date: "",
@@ -34,23 +38,43 @@ const EntryForm = ({ id, addEntry, codes }: EntryFormProps) => {
     healthCheckRating: 0,
   });
 
+  const notify = (message: string) => {
+    setError(message);
+    setTimeout(() => {
+      setError(undefined);
+    }, 5000);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEntry({ ...entry, [name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const newEntry = await patientService.createEntry(id, entry);
-    addEntry(newEntry);
-    setEntry({
-      description: "",
-      date: "",
-      specialist: "",
-      diagnosisCodes: [],
-      type: "HealthCheck",
-      healthCheckRating: 0,
-    });
+    try {
+      e.preventDefault();
+      const newEntry = await patientService.createEntry(id, entry);
+      addEntry(newEntry);
+      setEntry({
+        description: "",
+        date: "",
+        specialist: "",
+        diagnosisCodes: [],
+        type: "HealthCheck",
+        healthCheckRating: 0,
+      });
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        const error = (e.response?.data?.error as ZodIssue[])
+          ?.map((item) => item.message)
+          .join(", ");
+        notify(error);
+      } else if (e instanceof Error) {
+        notify(e.message);
+      } else {
+        notify("Unknown error");
+      }
+    }
   };
 
   const typeForms = {
@@ -93,6 +117,8 @@ const EntryForm = ({ id, addEntry, codes }: EntryFormProps) => {
       }}
     >
       <h2>EntryForm</h2>
+
+      {error && <Alert severity="error">{error}</Alert>}
       <form
         style={{
           display: "flex",

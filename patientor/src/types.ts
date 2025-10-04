@@ -71,4 +71,13 @@ export interface Patient {
   entries: Entry[];
 }
 
+export interface ZodIssue {
+  origin: string;
+  code: string;
+  minimum: number;
+  inclusive: boolean;
+  path: string[];
+  message: string;
+}
+
 export type PatientFormValues = Omit<Patient, "id" | "entries">;

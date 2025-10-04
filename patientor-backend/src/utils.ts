@@ -3,9 +3,9 @@ import { Gender, HealthCheckRating } from "./types";
 
 export const baseEntrySchema = {
   id: z.string(),
-  description: z.string(),
-  date: z.string(),
-  specialist: z.string(),
+  description: z.string().nonempty("Description is required"),
+  date: z.string().nonempty("Date is required"),
+  specialist: z.string().nonempty("Specialist is required"),
   diagnosisCodes: z.array(z.string()).optional(),
 };
 
@@ -14,14 +14,14 @@ const { id, ...baseNewEntrySchema } = baseEntrySchema;
 
 export const healthCheckSchema = {
   type: z.literal("HealthCheck"),
-  healthCheckRating: z.enum(HealthCheckRating),
+  healthCheckRating: z.enum(HealthCheckRating).nonoptional(),
 };
 
 export const hospitalSchema = {
   type: z.literal("Hospital"),
   discharge: z.object({
-    date: z.string(),
-    criteria: z.string(),
+    date: z.string().nonempty("Discharge date is required"),
+    criteria: z.string().nonempty("Discharge criteria is required"),
   }),
 };
 
@@ -30,8 +30,8 @@ export const occupationalHealthcareSchema = {
   employerName: z.string(),
   sickLeave: z
     .object({
-      startDate: z.string(),
-      endDate: z.string(),
+      startDate: z.string().nonempty("Sick leave start date is required"),
+      endDate: z.string().nonempty("Sick leave end date is required"),
     })
     .optional(),
 };
@@ -43,11 +43,11 @@ export const entrySchema = z.union([
 ]);
 
 export const newEntrySchema = z.object({
-  name: z.string(),
-  dateOfBirth: z.string(),
-  ssn: z.string(),
+  name: z.string().nonempty("Name is required"),
+  dateOfBirth: z.string().nonempty("Date of birth is required"),
+  ssn: z.string().nonempty("SSN is required"),
   gender: z.enum(Object.values(Gender)),
-  occupation: z.string(),
+  occupation: z.string().nonempty("Occupation is required"),
   entries: z
     .array(
       z.union([
