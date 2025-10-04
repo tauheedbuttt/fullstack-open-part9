@@ -42,7 +42,9 @@ export const newEntrySchema = z.object({
   ssn: z.string(),
   gender: z.enum(Object.values(Gender)),
   occupation: z.string(),
-  entries: z.array(
-    z.union([healthCheckSchema, hospitalSchema, occupationalHealthcareSchema])
-  ),
+  entries: z
+    .array(
+      z.union([healthCheckSchema, hospitalSchema, occupationalHealthcareSchema])
+    )
+    .optional(),
 });

@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import patientService from "../../services/patients";
-import { Gender, Patient } from "../../types";
+import { Diagnosis, Gender, Patient } from "../../types";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import TransgenderIcon from "@mui/icons-material/Transgender";
+import groupBy from "lodash/groupBy";
+import EntryDetails from "./EntryDetails";
 
-const PatientDetailsPage = () => {
+interface PatientDetailsPageProps {
+  diagnoses: Diagnosis[];
+}
+
+const PatientDetailsPage = ({ diagnoses }: PatientDetailsPageProps) => {
   const id = useParams().id;
 
   const [patient, setPatient] = useState<Patient | undefined>(undefined);
@@ -26,6 +32,7 @@ const PatientDetailsPage = () => {
     [Gender.Other]: <TransgenderIcon />,
   };
   const icon = patient ? genderIcons[patient.gender] : null;
+  const groupedDiagnoses = groupBy(diagnoses, "code");
 
   return (
     <div>
@@ -39,15 +46,26 @@ const PatientDetailsPage = () => {
       {patient?.entries.map((entry) => (
         <div
           key={entry.date + entry.description}
-          style={{ marginBottom: "1em" }}
+          style={{
+            marginBottom: "1em",
+            padding: 10,
+            border: "1px solid black",
+            borderRadius: 12,
+          }}
         >
           <p>
             {entry.date} {entry.description}
           </p>
+          <EntryDetails entry={entry} />
           <ul>
-            {entry.diagnosisCodes?.map((code) => (
-              <li key={code}>{code}</li>
-            ))}
+            {entry.diagnosisCodes?.map((code) => {
+              const diagnosis = groupedDiagnoses[code]?.[0];
+              return (
+                <li key={code}>
+                  {code} {diagnosis?.name}
+                </li>
+              );
+            })}
           </ul>
         </div>
       ))}
