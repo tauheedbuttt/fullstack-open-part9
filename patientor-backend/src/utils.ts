@@ -1,11 +1,39 @@
 import z from "zod";
-import { Gender } from "./types";
+import { Gender, HealthCheckRating } from "./types";
 
-export const entrySchema = z.object({
+export const baseEntrySchema = {
+  id: z.string(),
   description: z.string(),
   date: z.string(),
   specialist: z.string(),
   diagnosisCodes: z.array(z.string()).optional(),
+};
+
+export const healthCheckSchema = z.object({
+  ...baseEntrySchema,
+  type: z.literal("HealthCheck"),
+  healthCheckRating: z.enum(HealthCheckRating),
+});
+
+export const hospitalSchema = z.object({
+  ...baseEntrySchema,
+  type: z.literal("Hospital"),
+  discharge: z.object({
+    date: z.string(),
+    criteria: z.string(),
+  }),
+});
+
+export const occupationalHealthcareSchema = z.object({
+  ...baseEntrySchema,
+  type: z.literal("OccupationalHealthcare"),
+  employerName: z.string(),
+  sickLeave: z
+    .object({
+      startDate: z.string(),
+      endDate: z.string(),
+    })
+    .optional(),
 });
 
 export const newEntrySchema = z.object({
@@ -14,5 +42,7 @@ export const newEntrySchema = z.object({
   ssn: z.string(),
   gender: z.enum(Object.values(Gender)),
   occupation: z.string(),
-  entries: z.array(entrySchema),
+  entries: z.array(
+    z.union([healthCheckSchema, hospitalSchema, occupationalHealthcareSchema])
+  ),
 });
