@@ -7,9 +7,22 @@ export enum Gender {
   Other = "other",
 }
 
+export interface Entry {
+  description: string;
+  date: string;
+  specialist: string;
+  diagnosisCodes?: Array<Diagnosis["code"]>;
+}
+
 export type NewPatientEntry = z.infer<typeof newEntrySchema>;
-export interface Patient extends NewPatientEntry {
+export interface Patient {
   id: string;
+  name: string;
+  ssn: string;
+  occupation: string;
+  gender: Gender;
+  dateOfBirth: string;
+  entries: Entry[];
 }
 
 export interface Diagnosis {
@@ -18,4 +31,4 @@ export interface Diagnosis {
   latin?: string;
 }
 
-export type PatientWithoutSsn = Omit<Patient, "ssn">;
+export type PatientWithoutSsn = Omit<Patient, "ssn" | "entries">;

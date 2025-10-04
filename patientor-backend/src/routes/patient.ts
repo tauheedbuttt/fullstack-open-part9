@@ -11,6 +11,19 @@ router.get("/", (_req, res: Response<PatientWithoutSsn[]>) => {
   res.send(patients);
 });
 
+router.get(
+  "/:id",
+  (
+    req: Request,
+    res: Response<PatientWithoutSsn | undefined | { error: string }>
+  ) => {
+    const { id } = req.params;
+    const patient = patientService.getPatientById(id);
+    if (!patient) return res.status(404).send({ error: "Patient not found" });
+    return res.send(patient);
+  }
+);
+
 const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
   try {
     newEntrySchema.parse(req.body);
